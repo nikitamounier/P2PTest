@@ -18,7 +18,6 @@ enum P2PAction: Equatable, BindableAction {
   case peerResponse(PeerID)
   case receivedProfileResponse(UserProfile)
   case shareButtonPressed
-  case confirmationPressed
   case binding(BindingAction<P2PState>)
   
 }
@@ -28,6 +27,7 @@ struct P2PEnvironment {
   var multipeer: MultipeerClient
   var orientation: OrientationClient
   var proximitySensor: ProximitySensorClient
+  var haptic: HapticClient
 }
 
 let p2pReducer = Reducer<P2PState, P2PAction, P2PEnvironment> { state, action, environment in
@@ -36,8 +36,8 @@ let p2pReducer = Reducer<P2PState, P2PAction, P2PEnvironment> { state, action, e
   case .task:
     return .run { [shareButtonPressed = state.shareButtonPressed, isBeaconTwo = state.isBeaconTwo] send in
       
-      let major: UInt16 = isBeaconTwo ? 0 : 1
-      let minor: UInt16 = isBeaconTwo ? 0 : 1
+      let major: UInt16 = .random(in: UInt16.min...UInt16.max)
+      let minor: UInt16 = .random(in: UInt16.min...UInt16.max)
       
       await withThrowingTaskGroup(of: Void.self) { group in
         group.addTask {
@@ -56,6 +56,7 @@ let p2pReducer = Reducer<P2PState, P2PAction, P2PEnvironment> { state, action, e
       
     } catch: { error, send in
       print("p2p/beacon error", error.localizedDescription)
+      await environment.haptic.generateFeedback(.error)
     }
     
   case let .beaconsResponse(beacons):
@@ -71,6 +72,8 @@ let p2pReducer = Reducer<P2PState, P2PAction, P2PEnvironment> { state, action, e
     state.shareButtonPressed = true
     
     return .task { [profile = state.userProfile, peers = state.peers, beacons = state.beacons] in
+      await environment.haptic.prepare()
+      
       async let isHorizontal = environment.orientation.horizontal()
       async let sensedProximity = environment.proximitySensor.sensedProximity()
       
@@ -93,39 +96,19 @@ let p2pReducer = Reducer<P2PState, P2PAction, P2PEnvironment> { state, action, e
       return .receivedProfileResponse(profile)
       
     } catch: { error in
-      
       print("send/receive error", error.localizedDescription)
+      
+      await environment.haptic.generateFeedback(.error)
+      
       return .binding(.set(\.$shareButtonPressed, false))
-    }
-    
-  case .confirmationPressed:
-    
-    return .run { [profile = state.userProfile, peers = state.peers, beacons = state.beacons] send in
-      
-      let closestBeacon = beacons
-        .filter { $0.proximity == .immediate || $0.proximity == .near }
-        .max { $0.accuracy < $1.accuracy && $0.rssi > $1.rssi }!
-      
-      let closestPeer = peers.first {
-        $0.name == "\(String(format: "%016d-%016d", closestBeacon.major, closestBeacon.minor))"
-      }!
-      
-      async let sending: Void = environment.multipeer.send(profile, closestPeer)
-      async let receivedProfile = environment.multipeer.receive(closestPeer)
-      
-      _ = try await (sending, receivedProfile)
-      
-      await send(.receivedProfileResponse(receivedProfile))
-      
-      
-    } catch: { error, send in
-      print("send/receive error", error.localizedDescription)
     }
     
   case let .receivedProfileResponse(profile):
     state.peerProfile = profile
     
-    return .none
+    return .fireAndForget {
+      await environment.haptic.generateFeedback(.success)
+    }
     
   case .binding:
     return .none
@@ -161,11 +144,6 @@ struct ContentView: View {
     .sheet(isPresented: viewStore.binding(\.$shareButtonPressed)) {
       if let profile = viewStore.peerProfile {
         Text(profile.name)
-      } else {
-        Button("Send and Receive") {
-          viewStore.send(.confirmationPressed)
-        }
-        .buttonStyle(.bordered)
       }
     }
   }
@@ -177,7 +155,7 @@ struct ContentView_Previews: PreviewProvider {
       store: Store(
         initialState: .init(),
         reducer: p2pReducer,
-        environment: .init(beacon: BeaconClient(start: { _, _ in .finished }), multipeer: MultipeerClient(start: { _ in .finished }, send: { _, _ in }, receive: { _ in UserProfile(name: "Nikita Mounier")}), orientation: .live, proximitySensor: .live)
+        environment: .init(beacon: BeaconClient(start: { _, _ in .finished }), multipeer: MultipeerClient(start: { _ in .finished }, send: { _, _ in }, receive: { _ in UserProfile(name: "Nikita Mounier")}), orientation: .live, proximitySensor: .live, haptic: .live)
       )
     )
   }

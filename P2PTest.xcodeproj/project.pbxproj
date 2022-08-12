@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E4332A6C28A6AE8B00CF60D1 /* HapticClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4332A6B28A6AE8B00CF60D1 /* HapticClient.swift */; };
+		E4332A6E28A6AF4800CF60D1 /* HapticLive.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4332A6D28A6AF4800CF60D1 /* HapticLive.swift */; };
 		E448B27028A5B3940020EFC0 /* OrientationClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = E448B26F28A5B3940020EFC0 /* OrientationClient.swift */; };
 		E448B27228A5B5860020EFC0 /* OrientationLive.swift in Sources */ = {isa = PBXBuildFile; fileRef = E448B27128A5B5860020EFC0 /* OrientationLive.swift */; };
 		E448B27528A5C0790020EFC0 /* ProximitySensorClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = E448B27428A5C0790020EFC0 /* ProximitySensorClient.swift */; };
@@ -27,6 +29,8 @@
 
 /* Begin PBXFileReference section */
 		E420033128A4648700A7BBFA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		E4332A6B28A6AE8B00CF60D1 /* HapticClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticClient.swift; sourceTree = "<group>"; };
+		E4332A6D28A6AF4800CF60D1 /* HapticLive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticLive.swift; sourceTree = "<group>"; };
 		E448B26F28A5B3940020EFC0 /* OrientationClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrientationClient.swift; sourceTree = "<group>"; };
 		E448B27128A5B5860020EFC0 /* OrientationLive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrientationLive.swift; sourceTree = "<group>"; };
 		E448B27428A5C0790020EFC0 /* ProximitySensorClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProximitySensorClient.swift; sourceTree = "<group>"; };
@@ -57,6 +61,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		E4332A6A28A6AE6E00CF60D1 /* HapticClient */ = {
+			isa = PBXGroup;
+			children = (
+				E4332A6B28A6AE8B00CF60D1 /* HapticClient.swift */,
+				E4332A6D28A6AF4800CF60D1 /* HapticLive.swift */,
+			);
+			path = HapticClient;
+			sourceTree = "<group>";
+		};
 		E448B26C28A5B3640020EFC0 /* OrientationClient */ = {
 			isa = PBXGroup;
 			children = (
@@ -102,6 +115,7 @@
 				E4F3B3D428A3414900038B47 /* MultipeerClient */,
 				E448B26C28A5B3640020EFC0 /* OrientationClient */,
 				E448B27328A5C0520020EFC0 /* ProximitySensorClient */,
+				E4332A6A28A6AE6E00CF60D1 /* HapticClient */,
 				E4F3B3C828A340F600038B47 /* Assets.xcassets */,
 				E4F3B3CA28A340F600038B47 /* Preview Content */,
 			);
@@ -219,10 +233,12 @@
 				E448B27228A5B5860020EFC0 /* OrientationLive.swift in Sources */,
 				E4F3B3E528A3565B00038B47 /* BeaconLive.swift in Sources */,
 				E4F3B3E328A3527D00038B47 /* BeaconClient.swift in Sources */,
+				E4332A6E28A6AF4800CF60D1 /* HapticLive.swift in Sources */,
 				E4F3B3D628A3416600038B47 /* MultipeerLive.swift in Sources */,
 				E448B27028A5B3940020EFC0 /* OrientationClient.swift in Sources */,
 				E4F3B3C528A340F600038B47 /* P2PTestApp.swift in Sources */,
 				E448B27528A5C0790020EFC0 /* ProximitySensorClient.swift in Sources */,
+				E4332A6C28A6AE8B00CF60D1 /* HapticClient.swift in Sources */,
 				E448B27728A5C0A40020EFC0 /* ProximitySensorLive.swift in Sources */,
 				E4F3B3D328A3411E00038B47 /* UserProfile.swift in Sources */,
 			);

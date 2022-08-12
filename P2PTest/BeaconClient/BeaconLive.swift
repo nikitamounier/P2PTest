@@ -139,7 +139,7 @@ private final class Delegate: NSObject, CLLocationManagerDelegate, CBPeripheralM
   }
   
   // Detector
-  
+
   func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
     print("authorization changed: \(manager.authorizationStatus)")
     self.detectorAuthorizationChanged(manager.authorizationStatus)
@@ -153,6 +153,11 @@ private final class Delegate: NSObject, CLLocationManagerDelegate, CBPeripheralM
   func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
     self.detectorFailed(error)
   }
+  
+  func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
+    self.detectorFailed(error)
+  }
+
   
   func locationManager(_ manager: CLLocationManager, didRange beacons: [CLBeacon], satisfying beaconConstraint: CLBeaconIdentityConstraint) {
     let beacons = beacons.map {
@@ -186,5 +191,9 @@ class Box<Value> {
   
   init(wrappedValue: Value) {
     self.wrappedValue = wrappedValue
+  }
+  
+  deinit {
+    print("\(wrappedValue) and its Box were deinitialized")
   }
 }

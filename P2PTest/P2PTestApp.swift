@@ -15,7 +15,7 @@ struct P2PTestApp: App {
                 store: .init(
                     initialState: .init(),
                     reducer: p2pReducer,
-                    environment: .init(beacon: .live, multipeer: .live, orientation: .live, proximitySensor: .live)
+                    environment: .init(beacon: .live, multipeer: .live, orientation: .live, proximitySensor: .live, haptic: .live)
                 )
             )
         }
