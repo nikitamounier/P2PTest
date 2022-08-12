@@ -16,8 +16,9 @@ enum BeaconError: Error, Equatable {
 
 private actor BeaconActor {
   var delegate: Delegate?
-  var locationManager: CLLocationManager?
-  var peripheralManager: CBPeripheralManager?
+  
+  @Box var locationManager: CLLocationManager?
+  @Box var peripheralManager: CBPeripheralManager?
   
   
   func start(major: UInt16, minor: UInt16) async -> AsyncThrowingStream<[Beacon], Error> {
@@ -35,7 +36,7 @@ private actor BeaconActor {
       )
       
       self.delegate = Delegate(
-        detectorAuthorizationChanged: { [locationManager = UncheckedSendable(locationManager)] auth in
+        detectorAuthorizationChanged: { [locationManager = UncheckedSendable($locationManager)] auth in
           
           print("Detector authorization changed: \(auth)")
           switch auth {
@@ -48,8 +49,8 @@ private actor BeaconActor {
               return
             }
             
-            locationManager.wrappedValue?.startMonitoring(for: detectingRegion)
-            locationManager.wrappedValue?.startRangingBeacons(satisfying: detectingRegion.beaconIdentityConstraint)
+            locationManager.wrappedValue.wrappedValue?.startMonitoring(for: detectingRegion)
+            locationManager.wrappedValue.wrappedValue?.startRangingBeacons(satisfying: detectingRegion.beaconIdentityConstraint)
             
             break
             
@@ -71,11 +72,11 @@ private actor BeaconActor {
           print("Detector ranged beacons: \(beacons)")
           continuation.yield(beacons)
         },
-        advertiserStateChanged: { [peripheralManager = UncheckedSendable(peripheralManager)] state in
+        advertiserStateChanged: { [peripheralManager = UncheckedSendable($peripheralManager)] state in
           print("Advertiser state changed: \(state)")
           switch state {
           case .poweredOn:
-            peripheralManager.wrappedValue?.startAdvertising(
+            peripheralManager.wrappedValue.wrappedValue?.startAdvertising(
               advertisingRegion.peripheralData(withMeasuredPower: nil) as? [String: Any]
             )
             
@@ -96,11 +97,11 @@ private actor BeaconActor {
         }
       )
       
-      continuation.onTermination = { @Sendable [locationManager = UncheckedSendable(locationManager), peripheralManager = UncheckedSendable(peripheralManager)] _ in
+      continuation.onTermination = { @Sendable [locationManager = UncheckedSendable($locationManager), peripheralManager = UncheckedSendable($peripheralManager)] _ in
         print("continuation terminated")
-        locationManager.wrappedValue?.stopMonitoring(for: detectingRegion)
-        locationManager.wrappedValue?.stopRangingBeacons(satisfying: detectingRegion.beaconIdentityConstraint)
-        peripheralManager.wrappedValue?.stopAdvertising()
+        locationManager.wrappedValue.wrappedValue?.stopMonitoring(for: detectingRegion)
+        locationManager.wrappedValue.wrappedValue?.stopRangingBeacons(satisfying: detectingRegion.beaconIdentityConstraint)
+        peripheralManager.wrappedValue.wrappedValue?.stopAdvertising()
       }
       
       self.locationManager = CLLocationManager()
@@ -174,5 +175,16 @@ private final class Delegate: NSObject, CLLocationManagerDelegate, CBPeripheralM
     if let error {
       self.advertiserFailed(error)
     }
+  }
+}
+
+@propertyWrapper
+class Box<Value> {
+  var wrappedValue: Value
+  
+  var projectedValue: Box<Value> { self }
+  
+  init(wrappedValue: Value) {
+    self.wrappedValue = wrappedValue
   }
 }
